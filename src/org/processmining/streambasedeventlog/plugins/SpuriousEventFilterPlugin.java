@@ -21,9 +21,9 @@ import org.processmining.stream.connections.XSAuthorXSStreamConnectionImpl;
 import org.processmining.stream.core.enums.CommunicationType;
 import org.processmining.streambasedeventlog.algorithms.ConditionalProbabilitiesBasedXSEventFilterImpl;
 import org.processmining.streambasedeventlog.help.StreamBasedEventLogHelp;
+import org.processmining.streambasedeventlog.parameters.ConditionalProbabilitiesBasedXSEventFilterParametersImpl;
 import org.processmining.streambasedeventlog.parameters.StreamBasedEventLogParametersImpl;
 import org.processmining.streambasedeventlog.parameters.StreamBasedEventStorageParametersImpl;
-import org.processmining.streambasedeventlog.parameters.XSEventFilterParametersImpl;
 
 @Plugin(name = "Spurious Event Filter", parameterLabels = { "Event Stream", "Parameters" }, returnLabels = { "Hub",
 		"Event Stream" }, returnTypes = { XSEventHub.class, XSEventStream.class }, help = StreamBasedEventLogHelp.TEXT)
@@ -34,7 +34,8 @@ public class SpuriousEventFilterPlugin {
 			final StreamBasedEventStorageParametersImpl parameters) {
 		//		XSEventHub hub = new TrieBasedSpuriousEventFilterStatisticsImpl(parameters,
 		//				new TrieBasedSpurioiusEventFilterParametersImpl());
-		XSEventHub hub = new ConditionalProbabilitiesBasedXSEventFilterImpl(new XSEventFilterParametersImpl(),
+		XSEventHub hub = new ConditionalProbabilitiesBasedXSEventFilterImpl(
+				new ConditionalProbabilitiesBasedXSEventFilterParametersImpl(),
 				new StreamBasedEventLogParametersImpl());
 		XSEventStream out = XSEventStreamFactory.createXSEventStream(CommunicationType.SYNC);
 		out.start();

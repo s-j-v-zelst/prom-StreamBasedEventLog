@@ -12,14 +12,14 @@ import org.processmining.framework.util.Pair;
 import org.processmining.framework.util.collection.HashMultiSet;
 import org.processmining.framework.util.collection.MultiSet;
 import org.processmining.streambasedeventlog.algorithms.abstr.AbstractXSEventFilterImpl;
+import org.processmining.streambasedeventlog.parameters.ConditionalProbabilitiesBasedXSEventFilterParametersImpl;
 import org.processmining.streambasedeventlog.parameters.StreamBasedEventLogParametersImpl;
-import org.processmining.streambasedeventlog.parameters.XSEventFilterParametersImpl;
 
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
 public class ConditionalProbabilitiesBasedXSEventFilterImpl
-		extends AbstractXSEventFilterImpl<XSEventFilterParametersImpl> {
+		extends AbstractXSEventFilterImpl<ConditionalProbabilitiesBasedXSEventFilterParametersImpl> {
 
 	private final String ARTIFICIAL_START_SYMBOL = "__ARTIFICIAL_START__" + System.currentTimeMillis();
 	private final Map<Collection<String>, TObjectIntMap<String>> followsRelation = new HashMap<>();
@@ -28,9 +28,8 @@ public class ConditionalProbabilitiesBasedXSEventFilterImpl
 	private final StreamBasedEventLogParametersImpl storageParams;
 	private final Collection<String> alteredCases = new HashSet<>();
 
-	private final int maxLength = 3;
-
-	public ConditionalProbabilitiesBasedXSEventFilterImpl(XSEventFilterParametersImpl filterParameters,
+	public ConditionalProbabilitiesBasedXSEventFilterImpl(
+			ConditionalProbabilitiesBasedXSEventFilterParametersImpl filterParameters,
 			StreamBasedEventLogParametersImpl storageParams) {
 		super("spurious_event_filter_conditional_probs", filterParameters);
 		collector = new NaiveEventCollectorImpl<StreamBasedEventLogParametersImpl>(storageParams);
@@ -40,7 +39,6 @@ public class ConditionalProbabilitiesBasedXSEventFilterImpl
 	@Override
 	protected void handleNextPacket(XSEvent event) {
 		final String caseId = event.get(storageParams.getCaseIdentifier()).toString();
-		final String newActivity = event.get(storageParams.getActivityIdentifier()).toString();
 		collector.handleNextPacket(event);
 		List<String> trace = translateToStringList(collector.getCases().get(caseId));
 		if (!alteredCases.contains(caseId))
@@ -58,7 +56,7 @@ public class ConditionalProbabilitiesBasedXSEventFilterImpl
 	}
 
 	private void incrementallyIncreaseFollowsRelation(final List<String> trace) {
-		for (int i = 1; i <= maxLength; i++) {
+		for (int i = 1; i <= getFilterParameters().getMaxPatternLength(); i++) {
 			if (trace.size() > i) {
 				List<String> prefix = trace.subList(trace.size() - i - 1, trace.size() - 1);
 				MultiSet<String> mset = new HashMultiSet<>(prefix);
@@ -71,7 +69,7 @@ public class ConditionalProbabilitiesBasedXSEventFilterImpl
 	}
 
 	private void incrementallyIncreasePrecedenceRelation(final List<String> trace) {
-		for (int i = 1; i <= maxLength; i++) {
+		for (int i = 1; i <= getFilterParameters().getMaxPatternLength(); i++) {
 			if (trace.size() > i) {
 				List<String> suffix = trace.subList(trace.size() - i, trace.size());
 				MultiSet<String> mset = new HashMultiSet<>(suffix);
@@ -87,7 +85,7 @@ public class ConditionalProbabilitiesBasedXSEventFilterImpl
 	private void incrementallyReduceFollowsRelation(final List<String> alteredTrace, final List<String> newTrace) {
 		int diff = alteredTrace.size() - newTrace.size();
 		if (diff == 0) { // can't be > 0
-			for (int i = 1; i <= maxLength; i++) {
+			for (int i = 1; i <= getFilterParameters().getMaxPatternLength(); i++) {
 				if (i < alteredTrace.size()) {
 					List<String> prefix = alteredTrace.subList(0, i);
 					MultiSet<String> mset = new HashMultiSet<>(prefix);
@@ -96,7 +94,7 @@ public class ConditionalProbabilitiesBasedXSEventFilterImpl
 			}
 		} else {
 			for (int i = 0; i < diff; i++) {
-				for (int j = i + 1; j <= i + maxLength; j++) {
+				for (int j = i + 1; j <= i + getFilterParameters().getMaxPatternLength(); j++) {
 					if (j < alteredTrace.size()) {
 						List<String> prefix = alteredTrace.subList(i, j);
 						MultiSet<String> mset = new HashMultiSet<>(prefix);
@@ -113,7 +111,7 @@ public class ConditionalProbabilitiesBasedXSEventFilterImpl
 		int diff = alteredTrace.size() - newTrace.size();
 		if (diff == 0) {
 			String act = alteredTrace.get(0);
-			for (int i = 1; i <= maxLength; i++) {
+			for (int i = 1; i <= getFilterParameters().getMaxPatternLength(); i++) {
 				if (i < alteredTrace.size()) {
 					List<String> suffix = alteredTrace.subList(i, i + 1);
 					MultiSet<String> mset = new HashMultiSet<>(suffix);
@@ -123,7 +121,7 @@ public class ConditionalProbabilitiesBasedXSEventFilterImpl
 		} else {
 			for (int i = 0; i < diff; i++) {
 				String act = alteredTrace.get(i);
-				for (int j = i + 1; j <= i + maxLength; j++) {
+				for (int j = i + 1; j <= i + getFilterParameters().getMaxPatternLength(); j++) {
 					if (j < alteredTrace.size()) {
 						List<String> suffix = alteredTrace.subList(i + 1, j + 1);
 						MultiSet<String> mset = new HashMultiSet<>(suffix);
@@ -164,7 +162,7 @@ public class ConditionalProbabilitiesBasedXSEventFilterImpl
 	private boolean classifyNewEventAsNoise(final List<String> trace) {
 		final String newActivity = trace.get(trace.size() - 1);
 		boolean noise = false;
-		for (int i = 1; i <= maxLength; i++) {
+		for (int i = 1; i <= getFilterParameters().getMaxPatternLength(); i++) {
 			if (trace.size() > i) {
 				List<String> prefix = trace.subList(trace.size() - i - 1, trace.size() - 1);
 				MultiSet<String> mset = new HashMultiSet<>(prefix);
@@ -174,7 +172,8 @@ public class ConditionalProbabilitiesBasedXSEventFilterImpl
 				for (String k : dist.keySet()) {
 					max = Math.max(max, dist.get(k));
 				}
-				if (!dist.containsKey(newActivity) || dist.get(newActivity) <= 0.01d * max) {
+				if (!dist.containsKey(newActivity)
+						|| dist.get(newActivity) <= getFilterParameters().getCutoffThreshold() * max) {
 					noise = true;
 					break;
 				}
@@ -183,7 +182,7 @@ public class ConditionalProbabilitiesBasedXSEventFilterImpl
 			}
 		}
 		if (!noise) {
-			for (int i = 1; i <= maxLength; i++) {
+			for (int i = 1; i <= getFilterParameters().getMaxPatternLength(); i++) {
 				if (trace.size() > i) {
 					List<String> suffix = trace.subList(trace.size() - i, trace.size());
 					MultiSet<String> mset = new HashMultiSet<>(suffix);
@@ -193,7 +192,8 @@ public class ConditionalProbabilitiesBasedXSEventFilterImpl
 					for (Collection<String> coll : distribution.keySet()) {
 						max = Math.max(max, distribution.get(coll));
 					}
-					if (!distribution.containsKey(mset) || distribution.get(mset) <= 0.01d * max) {
+					if (!distribution.containsKey(mset)
+							|| distribution.get(mset) <= getFilterParameters().getCutoffThreshold() * max) {
 						noise = true;
 						break;
 					}

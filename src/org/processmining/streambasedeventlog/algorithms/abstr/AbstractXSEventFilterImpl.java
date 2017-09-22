@@ -29,7 +29,7 @@ public class AbstractXSEventFilterImpl<P extends XSEventFilterParametersImpl> ex
 		super(name, CommunicationType.SYNC);
 		this.filterParameters = filterParameters;
 		//TODO remove:
-		filterParameters.setMessageLevel(PluginParameters.DEBUG);
+		//		filterParameters.setMessageLevel(PluginParameters.DEBUG);
 	}
 
 	public XSEvent getCurrentResult() {
@@ -87,19 +87,19 @@ public class AbstractXSEventFilterImpl<P extends XSEventFilterParametersImpl> ex
 						.equals(filterParameters.getNoiseClassificationLabelValue());
 	}
 
-	public void setFalseNegatives(long falseNegatives) {
+	private void setFalseNegatives(long falseNegatives) {
 		this.falseNegatives = falseNegatives;
 	}
 
-	public void setFalsePositives(long falsePositives) {
+	private void setFalsePositives(long falsePositives) {
 		this.falsePositives = falsePositives;
 	}
 
-	public void setTrueNegatives(long trueNegatives) {
+	private void setTrueNegatives(long trueNegatives) {
 		this.trueNegatives = trueNegatives;
 	}
 
-	public void setTruePositives(long truePositives) {
+	private void setTruePositives(long truePositives) {
 		this.truePositives = truePositives;
 	}
 
