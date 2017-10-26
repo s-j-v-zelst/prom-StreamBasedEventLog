@@ -1,5 +1,6 @@
 package org.processmining.streambasedeventlog.parameters;
 
+@Deprecated // moved to StreamBasedEventFilter package
 public class TrieBasedSpurioiusEventFilterParametersImpl extends XSEventFilterParametersImpl {
 
 	public enum InclusionDecisionStrategy {

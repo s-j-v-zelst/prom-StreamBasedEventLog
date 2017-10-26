@@ -23,6 +23,7 @@ import gnu.trove.map.hash.TObjectIntHashMap;
  * @param <E>
  * @param <P>
  */
+@Deprecated // moved to StreamBasedEventFilter package
 public class TrieBasedSpuriousEventFilterEventCollectorImpl<E extends EventPayload, P extends StreamBasedEventStorageParametersImpl>
 		extends TrieBasedEventCollectorImpl<E, P> {
 

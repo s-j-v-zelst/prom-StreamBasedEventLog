@@ -15,6 +15,7 @@ import org.processmining.stream.core.enums.CommunicationType;
 import org.processmining.stream.core.interfaces.XSVisualization;
 import org.processmining.streambasedeventlog.parameters.XSEventFilterParametersImpl;
 
+@Deprecated // moved to StreamBasedEventFilter package
 public class AbstractXSEventFilterImpl<P extends XSEventFilterParametersImpl> extends AbstractXSHub<XSEvent, XSEvent>
 		implements XSEventHub {
 

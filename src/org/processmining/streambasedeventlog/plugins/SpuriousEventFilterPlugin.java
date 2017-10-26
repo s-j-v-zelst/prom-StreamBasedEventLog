@@ -27,6 +27,7 @@ import org.processmining.streambasedeventlog.parameters.StreamBasedEventStorageP
 
 @Plugin(name = "Spurious Event Filter", parameterLabels = { "Event Stream", "Parameters" }, returnLabels = { "Hub",
 		"Event Stream" }, returnTypes = { XSEventHub.class, XSEventStream.class }, help = StreamBasedEventLogHelp.TEXT)
+@Deprecated // moved to StreamBasedEventFilter package
 public class SpuriousEventFilterPlugin {
 
 	@PluginVariant(variantLabel = "Spurious Event Filter, stream / parameters", requiredParameterLabels = { 0, 1 })

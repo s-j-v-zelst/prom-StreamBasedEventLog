@@ -2,6 +2,7 @@ package org.processmining.streambasedeventlog.parameters;
 
 import org.processmining.basicutils.parameters.impl.PluginParametersImpl;
 
+@Deprecated // moved to StreamBasedEventFilter package
 public class XSEventFilterParametersImpl extends PluginParametersImpl {
 	private String classificationNoiseLabelKey = "xsevent:data:noise";
 

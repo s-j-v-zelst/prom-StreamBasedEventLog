@@ -24,6 +24,7 @@ import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
+@Deprecated // moved to StreamBasedEventFilter package
 public class TrieBasedSpuriousEventFilterStatisticsImpl extends AbstractXSHub<XSEvent, XSEvent> implements XSEventHub {
 
 	private final Collection<String> casesObservedDuringWarmup = new HashSet<>();

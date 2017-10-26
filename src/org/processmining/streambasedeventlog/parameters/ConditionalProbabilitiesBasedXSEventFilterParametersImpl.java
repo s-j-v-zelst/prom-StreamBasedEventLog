@@ -1,5 +1,6 @@
 package org.processmining.streambasedeventlog.parameters;
 
+@Deprecated // moved to StreamBasedEventFilter package
 public class ConditionalProbabilitiesBasedXSEventFilterParametersImpl extends XSEventFilterParametersImpl {
 
 	private int maxPatternLength = 3;

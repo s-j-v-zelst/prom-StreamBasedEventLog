@@ -21,6 +21,7 @@ import org.processmining.streambasedeventlog.models.IncrementalPayloadTrie;
 import org.processmining.streambasedeventlog.parameters.StreamBasedEventStorageParametersImpl;
 import org.processmining.streambasedeventlog.parameters.TrieBasedSpurioiusEventFilterParametersImpl;
 
+@Deprecated // moved to StreamBasedEventFilter package
 public class TrieBasedSpuriousEventFilterImpl extends AbstractXSHub<XSEvent, XSEvent> implements XSEventHub {
 
 	private final Collection<String> casesObservedDuringWarmup = new HashSet<>();

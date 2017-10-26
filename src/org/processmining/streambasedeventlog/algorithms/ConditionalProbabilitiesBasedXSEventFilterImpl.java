@@ -18,6 +18,7 @@ import org.processmining.streambasedeventlog.parameters.StreamBasedEventLogParam
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
+@Deprecated // moved to StreamBasedEventFilter package
 public class ConditionalProbabilitiesBasedXSEventFilterImpl
 		extends AbstractXSEventFilterImpl<ConditionalProbabilitiesBasedXSEventFilterParametersImpl> {
 
