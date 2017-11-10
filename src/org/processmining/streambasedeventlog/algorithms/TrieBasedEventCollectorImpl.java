@@ -12,11 +12,12 @@ import org.processmining.streambasedeventlog.algorithms.abstr.AbstractEventColle
 import org.processmining.streambasedeventlog.models.EventPayload;
 import org.processmining.streambasedeventlog.models.IncrementalPayloadTrie;
 import org.processmining.streambasedeventlog.models.IncrementalRootedPayloadGraph;
+import org.processmining.streambasedeventlog.models.XSEventStreamToXLogReader;
 import org.processmining.streambasedeventlog.models.impl.IncrementalPayloadTrieImpl;
 import org.processmining.streambasedeventlog.parameters.StreamBasedEventStorageParametersImpl;
 
 public class TrieBasedEventCollectorImpl<E extends EventPayload, P extends StreamBasedEventStorageParametersImpl>
-		extends AbstractEventCollector<P> {
+		extends AbstractEventCollector<XLog, XLog, P> implements XSEventStreamToXLogReader<P> {
 
 	private final EventPayload.Factory<E> eventPayloadFactory;
 	private final Map<String, IncrementalPayloadTrie.Edge<E>> fromEdges = new HashMap<>();
@@ -24,6 +25,7 @@ public class TrieBasedEventCollectorImpl<E extends EventPayload, P extends Strea
 	private final Map<String, IncrementalPayloadTrie.Edge<E>> toEdges = new HashMap<>();
 
 	private final IncrementalPayloadTrie<E, IncrementalPayloadTrie.Edge<E>, IncrementalRootedPayloadGraph.Edge.Factory<E, IncrementalPayloadTrie.Edge<E>>> trie;
+
 	public TrieBasedEventCollectorImpl(final P parameters, final EventPayload.Factory<E> eventPayloadFactory) {
 		super("trie event collector", parameters);
 		this.eventPayloadFactory = eventPayloadFactory;
@@ -33,6 +35,7 @@ public class TrieBasedEventCollectorImpl<E extends EventPayload, P extends Strea
 		trie.getRootEdge().setDepth(0);
 		//		System.out.println("#event, #memory_elements, #events, #payload");
 	}
+
 	private void addEventToTrie(XSEvent event) {
 		String caseId = getCaseId(event);
 		String activity = event.get(getParameters().getActivityIdentifier()).toString();

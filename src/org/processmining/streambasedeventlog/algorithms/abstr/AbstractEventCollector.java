@@ -6,21 +6,19 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import org.deckfour.xes.model.XAttributeLiteral;
-import org.deckfour.xes.model.XLog;
 import org.processmining.eventstream.core.interfaces.XSEvent;
-import org.processmining.eventstream.readers.xlog.XSEventStreamToXLogReader;
 import org.processmining.stream.core.abstracts.AbstractXSReader;
+import org.processmining.streambasedeventlog.models.XSEventStreamBasedEventStore;
 import org.processmining.streambasedeventlog.parameters.StreamBasedEventStorageParametersImpl;
 
 /**
  * abstract entity that handles mapping events to tuple-based encoding (i.e.
  * long[]), storing parameters etc.
  * 
- * @author svzelst
- *
+ * @author svzelst <T> resulting class <V> class to visualize
  */
-public abstract class AbstractEventCollector<P extends StreamBasedEventStorageParametersImpl>
-		extends AbstractXSReader<XSEvent, XLog, XLog> implements XSEventStreamToXLogReader {
+public abstract class AbstractEventCollector<T, V, P extends StreamBasedEventStorageParametersImpl>
+		extends AbstractXSReader<XSEvent, T, V> implements XSEventStreamBasedEventStore<T, P> {
 
 	private final P parameters;
 	private final Queue<String> slidingWindow = new LinkedList<>();
@@ -29,6 +27,10 @@ public abstract class AbstractEventCollector<P extends StreamBasedEventStoragePa
 	public AbstractEventCollector(String name, P parameters) {
 		super(name, null);
 		this.parameters = parameters;
+	}
+
+	public P getStorageParameters() {
+		return parameters;
 	}
 
 	protected Collection<String> addEventToCaseStore(XSEvent e) {

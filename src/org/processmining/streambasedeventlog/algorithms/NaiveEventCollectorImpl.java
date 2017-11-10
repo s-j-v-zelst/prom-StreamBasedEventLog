@@ -15,9 +15,11 @@ import org.deckfour.xes.model.XTrace;
 import org.processmining.eventstream.core.interfaces.XSEvent;
 import org.processmining.framework.util.Pair;
 import org.processmining.streambasedeventlog.algorithms.abstr.AbstractEventCollector;
+import org.processmining.streambasedeventlog.models.XSEventStreamToXLogReader;
 import org.processmining.streambasedeventlog.parameters.StreamBasedEventLogParametersImpl;
 
-public class NaiveEventCollectorImpl<P extends StreamBasedEventLogParametersImpl> extends AbstractEventCollector<P> {
+public class NaiveEventCollectorImpl<P extends StreamBasedEventLogParametersImpl>
+		extends AbstractEventCollector<XLog, XLog, P> implements XSEventStreamToXLogReader<P> {
 
 	private final Map<String, List<XSEvent>> cases = new HashMap<>();
 	private final Map<String, Pair<List<XSEvent>, List<XSEvent>>> delta = new HashMap<>();
