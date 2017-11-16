@@ -30,7 +30,7 @@ public class NaiveEventCollectorImpl<P extends StreamBasedEventLogParametersImpl
 
 	public NaiveEventCollectorImpl(final P parameters) {
 		super("naive_event_collector", parameters);
-		System.out.println("#event, #memory_elements, #events, #payload");
+		//		System.out.println("#event, #memory_elements, #events, #payload");
 	}
 
 	protected void handleNextPacket(XSEvent packet) {
