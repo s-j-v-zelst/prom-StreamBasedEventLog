@@ -3,8 +3,6 @@ package org.processmining.streambasedeventlog.algorithms;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-import org.deckfour.xes.factory.XFactory;
-import org.deckfour.xes.factory.XFactoryRegistry;
 import org.deckfour.xes.model.XLog;
 import org.processmining.eventstream.core.interfaces.XSEvent;
 import org.processmining.stream.core.abstracts.AbstractXSReader;
@@ -12,12 +10,13 @@ import org.processmining.streambasedeventlog.models.XSEventStreamToXLogReader;
 import org.processmining.streambasedeventlog.parameters.StreamBasedEventStorageParametersImpl;
 import org.processmining.streambasedeventlog.util.XSEventCollectionUtils;
 
+import com.google.common.collect.Lists;
+
 public class SlidingWindowBasedEventCollectorImpl<P extends StreamBasedEventStorageParametersImpl>
 		extends AbstractXSReader<XSEvent, XLog, XLog> implements XSEventStreamToXLogReader<P> {
 
 	private final P param;
 	private final Deque<XSEvent> window = new ArrayDeque<>();
-	private XFactory fact = XFactoryRegistry.instance().currentDefault();
 
 	public SlidingWindowBasedEventCollectorImpl(final P param) {
 		super("sliding_window_event_log_creator", null);
@@ -49,8 +48,9 @@ public class SlidingWindowBasedEventCollectorImpl<P extends StreamBasedEventStor
 	}
 
 	protected XLog computeCurrentResult() {
-		return XSEventCollectionUtils.convertToXEventLog(window, param.getCaseIdentifier(),
-				param.getActivityIdentifier());
+
+		return XSEventCollectionUtils.convertToXEventLog(Lists.newArrayList(window.descendingIterator()),
+				param.getCaseIdentifier(), param.getActivityIdentifier());
 	}
 
 	protected void handleNextPacket(XSEvent packet) {
