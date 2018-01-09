@@ -43,7 +43,7 @@ public class SlidingWindowBasedEventCollectorImpl<P extends StreamBasedEventStor
 	public long getTotalPayloadMemoryOccupation() {
 		long l = 0;
 		for (XSEvent e : window) {
-			l += window.size();
+			l += e.size();
 		}
 		return l;
 	}
