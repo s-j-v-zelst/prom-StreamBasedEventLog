@@ -15,6 +15,7 @@ import org.processmining.streambasedeventlog.models.IncrementalRootedPayloadGrap
 import org.processmining.streambasedeventlog.models.XSEventStreamToXLogReader;
 import org.processmining.streambasedeventlog.models.impl.IncrementalPayloadTrieImpl;
 import org.processmining.streambasedeventlog.parameters.StreamBasedEventStorageParametersImpl;
+import org.processmining.streambasedeventlog.util.IncrementalPayloadTrieUtils;
 
 public class TrieBasedEventCollectorImpl<E extends EventPayload, P extends StreamBasedEventStorageParametersImpl>
 		extends AbstractEventCollector<XLog, XLog, P> implements XSEventStreamToXLogReader<P> {
@@ -53,8 +54,7 @@ public class TrieBasedEventCollectorImpl<E extends EventPayload, P extends Strea
 	}
 
 	protected XLog computeCurrentResult() {
-		// TODO Auto-generated method stub
-		return null;
+		return IncrementalPayloadTrieUtils.convertToXLog(getTrie(), true);
 	}
 
 	private E decorateEventPayload(E payload, XSEvent event) {
