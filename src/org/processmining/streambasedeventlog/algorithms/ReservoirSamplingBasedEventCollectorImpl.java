@@ -22,6 +22,7 @@ public class ReservoirSamplingBasedEventCollectorImpl<P extends StreamBasedEvent
 	private final XSEvent[][] reservoir;
 	private int occupied = 0;
 	private final Map<String, Integer> indices;
+	private int pckt = 0;
 
 	public ReservoirSamplingBasedEventCollectorImpl(final P params) {
 		super("reservoir_sampling_collector", null);
@@ -72,6 +73,7 @@ public class ReservoirSamplingBasedEventCollectorImpl<P extends StreamBasedEvent
 	}
 
 	protected void handleNextPacket(XSEvent packet) {
+		pckt++;
 		String caseId = packet.get(params.getCaseIdentifier()).toString();
 		int i = -1;
 		if (indices.containsKey(caseId)) {
@@ -83,7 +85,7 @@ public class ReservoirSamplingBasedEventCollectorImpl<P extends StreamBasedEvent
 				indices.put(caseId, i);
 			} else {
 				Random r = new Random();
-				int n = r.nextInt((int) super.getNumberOfPacketsReceived());
+				int n = r.nextInt(pckt);
 				if (n < params.getSlidingWindowSize()) {
 					i = r.nextInt(params.getSlidingWindowSize());
 					// find i
