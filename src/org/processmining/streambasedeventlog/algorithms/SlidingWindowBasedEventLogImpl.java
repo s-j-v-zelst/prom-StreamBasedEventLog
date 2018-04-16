@@ -1,26 +1,26 @@
 package org.processmining.streambasedeventlog.algorithms;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-
 import org.deckfour.xes.model.XLog;
 import org.processmining.eventstream.core.interfaces.XSEvent;
 import org.processmining.stream.core.abstracts.AbstractXSReader;
 import org.processmining.streambasedeventlog.models.XSEventStreamToXLogReader;
 import org.processmining.streambasedeventlog.parameters.StreamBasedEventStorageParametersImpl;
 import org.processmining.streambasedeventlog.util.XSEventCollectionUtils;
+import org.processmining.streambasedeventstorage.algorithms.XSEventStoreSlidingWindowImpl;
+import org.processmining.streambasedeventstorage.parameters.XSEventStoreSlidingWindowParametersImpl;
 
-import com.google.common.collect.Lists;
-
-public class SlidingWindowBasedEventCollectorImpl<P extends StreamBasedEventStorageParametersImpl>
+public class SlidingWindowBasedEventLogImpl<P extends StreamBasedEventStorageParametersImpl>
 		extends AbstractXSReader<XSEvent, XLog, XLog> implements XSEventStreamToXLogReader<P> {
 
 	private final P param;
-	private final Deque<XSEvent> window = new ArrayDeque<>();
+	private final XSEventStoreSlidingWindowImpl sw;
 
-	public SlidingWindowBasedEventCollectorImpl(final P param) {
+	public SlidingWindowBasedEventLogImpl(final P param, final XSEventStoreSlidingWindowParametersImpl swparams) {
 		super("sliding_window_event_log_creator", null);
+		swparams.setActivityIdentifier(param.getActivityIdentifier());
+		swparams.setCaseIdentifier(param.getCaseIdentifier());
 		this.param = param;
+		sw = new XSEventStoreSlidingWindowImpl(swparams);
 	}
 
 	public P getStorageParameters() {
@@ -32,32 +32,28 @@ public class SlidingWindowBasedEventCollectorImpl<P extends StreamBasedEventStor
 	}
 
 	public long getNumberOfMemoryEntriesRepresentingEvents() {
-		return window.size();
+		return sw.getCurrentResult().size();
 	}
 
 	public long getTotalNumberOfEventsDescribedByMemory() {
-		return window.size();
+		return sw.getCurrentResult().size();
 	}
 
 	public long getTotalPayloadMemoryOccupation() {
 		long l = 0;
-		for (XSEvent e : window) {
+		for (XSEvent e : sw.getCurrentResult()) {
 			l += e.size();
 		}
 		return l;
 	}
 
 	protected XLog computeCurrentResult() {
-
-		return XSEventCollectionUtils.convertToXEventLog(Lists.newArrayList(window.descendingIterator()),
-				param.getCaseIdentifier(), param.getActivityIdentifier());
+		return XSEventCollectionUtils.convertToXEventLog(sw.getCurrentResult(), param.getCaseIdentifier(),
+				param.getActivityIdentifier());
 	}
 
 	protected void handleNextPacket(XSEvent packet) {
-		window.push(packet);
-		if (window.size() > param.getSlidingWindowSize()) {
-			window.removeLast();
-		}
+		sw.triggerPacketHandle(packet);
 	}
 
 }

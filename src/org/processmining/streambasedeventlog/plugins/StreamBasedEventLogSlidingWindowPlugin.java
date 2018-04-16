@@ -16,23 +16,26 @@ import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.stream.connections.XSAuthorXSStreamConnectionImpl;
-import org.processmining.streambasedeventlog.algorithms.SlidingWindowBasedEventCollectorImpl;
+import org.processmining.streambasedeventlog.algorithms.SlidingWindowBasedEventLogImpl;
 import org.processmining.streambasedeventlog.help.StreamBasedEventLogHelp;
 import org.processmining.streambasedeventlog.models.XSEventStreamToXLogReader;
 import org.processmining.streambasedeventlog.parameters.StreamBasedEventLogParametersImpl;
 import org.processmining.streambasedeventlog.parameters.StreamBasedEventStorageParametersImpl;
+import org.processmining.streambasedeventstorage.parameters.XSEventStoreSlidingWindowParametersImpl;
 
 @Plugin(name = "Store Event Stream as Event Log(s) (Sliding Window)", parameterLabels = { "Event Stream",
 		"Parameters" }, returnLabels = { "Event Log Generator" }, returnTypes = {
 				XSEventStreamToXLogReader.class }, help = StreamBasedEventLogHelp.TEXT)
 public class StreamBasedEventLogSlidingWindowPlugin {
 
+	//TODO: fix setting the sliding window parameters
+
 	@PluginVariant(variantLabel = "Store Event Stream as Event Log(s), stream / parameters", requiredParameterLabels = {
 			0, 1 })
 	public XSEventStreamToXLogReader<?> run(PluginContext context, XSEventStream stream,
-			StreamBasedEventLogParametersImpl parameters) {
-		XSEventStreamToXLogReader<?> algorithm = new SlidingWindowBasedEventCollectorImpl<StreamBasedEventStorageParametersImpl>(
-				parameters);
+			StreamBasedEventLogParametersImpl logParameters, XSEventStoreSlidingWindowParametersImpl swParams) {
+		XSEventStreamToXLogReader<?> algorithm = new SlidingWindowBasedEventLogImpl<StreamBasedEventStorageParametersImpl>(
+				logParameters, swParams);
 		algorithm.start();
 		stream.connect(algorithm);
 		return algorithm;
@@ -42,14 +45,16 @@ public class StreamBasedEventLogSlidingWindowPlugin {
 			0 })
 	public XSEventStreamToXLogReader<?> runDefault(PluginContext context, XSEventStream stream) {
 		StreamBasedEventLogParametersImpl parameters = new StreamBasedEventLogParametersImpl();
-		return run(context, stream, parameters);
+		XSEventStoreSlidingWindowParametersImpl swParams = new XSEventStoreSlidingWindowParametersImpl();
+		return run(context, stream, parameters, swParams);
 	}
 
 	@UITopiaVariant(affiliation = "Eindhoven University of Technology", author = "Sebastiaan J. van Zelst", email = "s.j.v.zelst@tue.nl")
 	@PluginVariant(variantLabel = "Store Event Stream as Event Log(s) (Sliding Window) [UI, Stream]", requiredParameterLabels = {
 			0 })
 	public XSEventStreamToXLogReader<?> runUI(UIPluginContext context, XSEventStream stream) {
-		return run(context, stream, new StreamBasedEventLogParametersImpl());
+		return run(context, stream, new StreamBasedEventLogParametersImpl(),
+				new XSEventStoreSlidingWindowParametersImpl());
 	}
 
 	@UITopiaVariant(affiliation = "Eindhoven University of Technology", author = "Sebastiaan J. van Zelst", email = "s.j.v.zelst@tue.nl")
@@ -67,7 +72,8 @@ public class StreamBasedEventLogSlidingWindowPlugin {
 				XSEventStreamConnectionDialogImpl dialog = new XSEventStreamConnectionDialogImpl(
 						availableStreamsOfAuthor);
 				if (context.showWizard("Select Stream", true, true, dialog).equals(InteractionResult.FINISHED)) {
-					return run(context, dialog.getSelectedStream(), new StreamBasedEventLogParametersImpl());
+					return run(context, dialog.getSelectedStream(), new StreamBasedEventLogParametersImpl(),
+							new XSEventStoreSlidingWindowParametersImpl());
 				}
 			}
 		} catch (ConnectionCannotBeObtained e) {

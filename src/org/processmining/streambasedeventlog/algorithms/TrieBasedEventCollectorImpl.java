@@ -16,6 +16,7 @@ import org.processmining.streambasedeventlog.models.XSEventStreamToXLogReader;
 import org.processmining.streambasedeventlog.models.impl.IncrementalPayloadTrieImpl;
 import org.processmining.streambasedeventlog.parameters.StreamBasedEventStorageParametersImpl;
 import org.processmining.streambasedeventlog.util.IncrementalPayloadTrieUtils;
+import org.processmining.streambasedeventstorage.models.XSEventStore;
 
 public class TrieBasedEventCollectorImpl<E extends EventPayload, P extends StreamBasedEventStorageParametersImpl>
 		extends AbstractEventCollector<XLog, XLog, P> implements XSEventStreamToXLogReader<P> {
@@ -27,8 +28,9 @@ public class TrieBasedEventCollectorImpl<E extends EventPayload, P extends Strea
 
 	private final IncrementalPayloadTrie<E, IncrementalPayloadTrie.Edge<E>, IncrementalRootedPayloadGraph.Edge.Factory<E, IncrementalPayloadTrie.Edge<E>>> trie;
 
-	public TrieBasedEventCollectorImpl(final P parameters, final EventPayload.Factory<E> eventPayloadFactory) {
-		super("trie event collector", parameters);
+	public TrieBasedEventCollectorImpl(final P parameters, final EventPayload.Factory<E> eventPayloadFactory,
+			final XSEventStore eventStore) {
+		super("trie event collector", parameters, eventStore);
 		this.eventPayloadFactory = eventPayloadFactory;
 		trie = new IncrementalPayloadTrieImpl<E>(
 				new IncrementalPayloadTrie.Edge.EdgeImpl<E>(eventPayloadFactory.construct(null)),
@@ -175,9 +177,10 @@ public class TrieBasedEventCollectorImpl<E extends EventPayload, P extends Strea
 	}
 
 	protected void handleNextPacket(XSEvent event) {
-		Collection<String> droppedCases = addEventToCaseStore(event);
+		Collection<XSEvent> droppedCases = addEventToCaseStore(event);
 		addEventToTrie(event);
-		for (String caseId : droppedCases) {
+		for (XSEvent d : droppedCases) {
+			String caseId = d.get(getParameters().getCaseIdentifier()).toString();
 			handleRemovedCase(caseId);
 		}
 	}

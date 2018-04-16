@@ -5,7 +5,7 @@ import org.processmining.eventstream.readers.abstr.XSEventReaderParameters;
 public class StreamBasedEventStorageParametersImpl extends XSEventReaderParameters {
 
 	public enum StorageStrategy {
-		NAIVE, TRIE;
+		TRIE;
 	}
 
 	public enum TraceRemovalStrategy {
@@ -14,9 +14,9 @@ public class StreamBasedEventStorageParametersImpl extends XSEventReaderParamete
 
 	private int blackListCapacity = 50;
 
-	private int slidingWindowSize = 10000;
+	private int slidingWindowSize = 500;
 
-	private StorageStrategy storageStrategy = StorageStrategy.NAIVE;
+	private StorageStrategy storageStrategy = StorageStrategy.TRIE;
 
 	private TraceRemovalStrategy traceRemovalStrategy = TraceRemovalStrategy.SHIFT;
 

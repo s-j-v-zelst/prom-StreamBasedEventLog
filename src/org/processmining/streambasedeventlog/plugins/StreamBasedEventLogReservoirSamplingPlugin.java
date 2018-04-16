@@ -16,11 +16,12 @@ import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.stream.connections.XSAuthorXSStreamConnectionImpl;
-import org.processmining.streambasedeventlog.algorithms.ReservoirSamplingBasedEventCollectorImpl;
+import org.processmining.streambasedeventlog.algorithms.EventLevelReservoirSamplingBasedEventLogImpl;
 import org.processmining.streambasedeventlog.help.StreamBasedEventLogHelp;
 import org.processmining.streambasedeventlog.models.XSEventStreamToXLogReader;
 import org.processmining.streambasedeventlog.parameters.StreamBasedEventLogParametersImpl;
 import org.processmining.streambasedeventlog.parameters.StreamBasedEventStorageParametersImpl;
+import org.processmining.streambasedeventstorage.parameters.XSEventStoreReservoirEventLevelSamplingParametersImpl;
 
 @Plugin(name = "Store Event Stream as Event Log(s) (Reservoir Sampling)", parameterLabels = { "Event Stream",
 		"Parameters" }, returnLabels = { "Event Log Generator" }, returnTypes = {
@@ -31,27 +32,30 @@ public class StreamBasedEventLogReservoirSamplingPlugin {
 			0, 1 })
 	public XSEventStreamToXLogReader<?> run(PluginContext context, XSEventStream stream,
 			StreamBasedEventLogParametersImpl parameters) {
-		XSEventStreamToXLogReader<?> algorithm = new ReservoirSamplingBasedEventCollectorImpl<StreamBasedEventStorageParametersImpl>(
-				parameters);
+		XSEventStreamToXLogReader<?> algorithm = new EventLevelReservoirSamplingBasedEventLogImpl<StreamBasedEventStorageParametersImpl>(
+				parameters, new XSEventStoreReservoirEventLevelSamplingParametersImpl());
 		algorithm.start();
 		stream.connect(algorithm);
 		return algorithm;
 	}
 
-	@PluginVariant(variantLabel = "Store Event Stream as Event Log(s) (Reservoir Sampling) [Stream]", requiredParameterLabels = { 0 })
+	@PluginVariant(variantLabel = "Store Event Stream as Event Log(s) (Reservoir Sampling) [Stream]", requiredParameterLabels = {
+			0 })
 	public XSEventStreamToXLogReader<?> runDefault(PluginContext context, XSEventStream stream) {
 		StreamBasedEventLogParametersImpl parameters = new StreamBasedEventLogParametersImpl();
 		return run(context, stream, parameters);
 	}
 
 	@UITopiaVariant(affiliation = "Eindhoven University of Technology", author = "Sebastiaan J. van Zelst", email = "s.j.v.zelst@tue.nl")
-	@PluginVariant(variantLabel = "Store Event Stream as Event Log(s) (Reservoir Sampling) [UI, Stream]", requiredParameterLabels = { 0 })
+	@PluginVariant(variantLabel = "Store Event Stream as Event Log(s) (Reservoir Sampling) [UI, Stream]", requiredParameterLabels = {
+			0 })
 	public XSEventStreamToXLogReader<?> runUI(UIPluginContext context, XSEventStream stream) {
 		return run(context, stream, new StreamBasedEventLogParametersImpl());
 	}
 
 	@UITopiaVariant(affiliation = "Eindhoven University of Technology", author = "Sebastiaan J. van Zelst", email = "s.j.v.zelst@tue.nl")
-	@PluginVariant(variantLabel = "Store Event Stream as Event Log(s) (Reservoir Sampling) [UI, Author]", requiredParameterLabels = { 0 })
+	@PluginVariant(variantLabel = "Store Event Stream as Event Log(s) (Reservoir Sampling) [UI, Author]", requiredParameterLabels = {
+			0 })
 	public XSEventStreamToXLogReader<?> runUI(UIPluginContext context, XSEventAuthor author) {
 		List<XSEventStream> availableStreamsOfAuthor = new ArrayList<>();
 		try {

@@ -16,13 +16,14 @@ import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.stream.connections.XSAuthorXSStreamConnectionImpl;
-import org.processmining.streambasedeventlog.algorithms.NaiveEventCollectorImpl;
 import org.processmining.streambasedeventlog.algorithms.TrieBasedEventCollectorImpl;
 import org.processmining.streambasedeventlog.help.StreamBasedEventLogHelp;
 import org.processmining.streambasedeventlog.models.EventPayload;
 import org.processmining.streambasedeventlog.models.XSEventStreamToXLogReader;
 import org.processmining.streambasedeventlog.parameters.StreamBasedEventLogParametersImpl;
 import org.processmining.streambasedeventlog.parameters.StreamBasedEventStorageParametersImpl;
+import org.processmining.streambasedeventstorage.algorithms.XSEventStoreSlidingWindowImpl;
+import org.processmining.streambasedeventstorage.parameters.XSEventStoreSlidingWindowParametersImpl;
 
 @Plugin(name = "Store Event Stream as Event Log(s)", parameterLabels = { "Event Stream",
 		"Parameters" }, returnLabels = { "Event Log Generator" }, returnTypes = {
@@ -35,13 +36,11 @@ public class StreamBasedEventLogPlugin {
 			StreamBasedEventLogParametersImpl parameters) {
 		XSEventStreamToXLogReader<?> algorithm = null;
 		switch (parameters.getStorageStrategy()) {
-			case NAIVE :
-			default :
-				algorithm = new NaiveEventCollectorImpl<StreamBasedEventLogParametersImpl>(parameters);
-				break;
 			case TRIE :
+				XSEventStoreSlidingWindowParametersImpl swpar = new XSEventStoreSlidingWindowParametersImpl();
+				swpar.setSize(parameters.getSlidingWindowSize());
 				algorithm = new TrieBasedEventCollectorImpl<EventPayload, StreamBasedEventStorageParametersImpl>(
-						parameters, new EventPayload.FactoryNaiveImpl());
+						parameters, new EventPayload.FactoryNaiveImpl(), new XSEventStoreSlidingWindowImpl("", swpar));
 				break;
 		}
 
